@@ -1,7 +1,7 @@
 import numpy as np
 import cv2 as cv
 import sys
-import tensorflow as tf
+# import tensorflow as tf
 from collections import deque
 from imutils.video import FPS
 
@@ -14,6 +14,7 @@ class BarTracker:
         self.ix, self.iy = -1, -1
         self.radius = 0
         
+        # Fix file path to be absolute of whatever the user inputs
         file_path = '/Users/miascarpati/Desktop/Northwestern/Junior/Q3/COMP_SCI_397_Sports/power-clean-form-coach/models/bar-tracking/input_vids/' + filename
         try:
             self.vid = cv.VideoCapture(file_path)
@@ -47,6 +48,7 @@ class BarTracker:
     
     def detect_circles(self, image):
         self.image = image
+        print("Draw a circle around the end of the barbell by clicking at the center and dragging to the edge. Press Enter when finished. Press Esc to exit. Draw as many times as needed.")
         cv.namedWindow('Select Object')
         cv.setMouseCallback('Select Object', self.draw_circle)
         while(1):
@@ -69,13 +71,12 @@ class BarTracker:
             return
         
         # Set up output
-        h, w, layers = frame.shape
+        h, w, _ = frame.shape
         fps = self.vid.get(cv.CAP_PROP_FPS)
         fourcc = cv.VideoWriter_fourcc(*'mp4v')
         video_out = cv.VideoWriter("output_vids/out_2.mp4", fourcc, fps, (w,h), isColor=True)
 
         # Get bounding box for the first frame
-        # x_min, y_min, x_max, y_max = self.generate_bounding_box(frame)
         x_min, y_min, x_max, y_max = self.detect_circles(frame)
         bounding_box = (x_min, y_min, x_max-x_min, y_max-y_min)
 
@@ -93,8 +94,8 @@ class BarTracker:
             if ok:
                 p1 = (int(bounding_box[0]), int(bounding_box[1]))
                 p2 = (int(bounding_box[0] + bounding_box[2]), int(bounding_box[1] + bounding_box[3]))
+                # Bounding box around plate
                 cv.rectangle(frame, p1, p2, (0,0,255), 2, 1)
-                # Draw centroid
                 center = (int((p1[0]+p2[0])/2), int((p1[1]+p2[1])/2))
                 cv.circle(frame, center, 2, (0,0,255), -1)
                 points.appendleft(center)
