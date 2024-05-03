@@ -103,7 +103,7 @@ class Testing:
 
 if __name__ == "__main__":
     test = Testing()
-    test.process_dir('training/hip', is_hip=True, img=True)
+    #test.process_dir('training/hip', is_hip=True, img=True)
     test.process_dir('training/knee', is_knee=True, img=True)
-    test.process_dir('training/video') # still need to test this
+    #test.process_dir('training/video') # still need to test this
     test.get_results()
