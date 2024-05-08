@@ -207,6 +207,7 @@ def get_angle(a, b, c):
     """
     Gets angle between three points. Used for hip and knee.
     """
+    print("Points: ", a, b, c)
     a = np.array(a)
     b = np.array(b)
     c = np.array(c)
@@ -216,4 +217,7 @@ def get_angle(a, b, c):
     return np.degrees(np.arccos(cos_angle))
 
 def get_bar_distance(p4, p7):
-    return (p4[0]+p4[1])/2, (p7[0]+p7[1])/2
+    """
+    Gets x coordinate of the mp of the bar.
+    """
+    return (p4[0] + p7[0])/2

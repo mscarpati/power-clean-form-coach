@@ -105,8 +105,10 @@ class Body(object):
 
         for k in range(len(mapIdx)):
             score_mid = paf_avg[:, :, [x - 19 for x in mapIdx[k]]]
-            candA = all_peaks[limbSeq[k][0] - 1]
-            candB = all_peaks[limbSeq[k][1] - 1]
+            pointA = limbSeq[k][0]
+            pointB = limbSeq[k][1]
+            candA = all_peaks[pointA - 1]
+            candB = all_peaks[pointB - 1]
             nA = len(candA)
             nB = len(candB)
             indexA, indexB = limbSeq[k]
@@ -153,7 +155,7 @@ class Body(object):
         # last number in each row is the total parts number of that person
         # the second last number in each row is the score of the overall configuration
         subset = -1 * np.ones((0, 20))
-        candidate = np.array([item for sublist in all_peaks for item in sublist])
+        candidate = np.array([item for sublist in all_peaks for item in sublist]) # flattened all_peaks
 
         for k in range(len(mapIdx)):
             if k not in special_k:

@@ -2,3 +2,5 @@ cleancoach/
 models/pose-detection/pytorch-openpose/model/body_pose_model.pth
 models/pose-detection/pytorch-openpose/model/hand_pose_model.pth
 models/pose-detection/pytorch-openpose/notebooks/
+models/pose-detection/pytorch-openpose/model_dev/training
+models/pose-detection/pytorch-openpose/model_dev/res

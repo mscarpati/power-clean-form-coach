@@ -1,5 +1,4 @@
 ## Get optimal angles/values from dataset
-## Was within the models/pose-detection/pytorch-openpose directory
 import sys
 import os
 from os import walk
@@ -14,7 +13,7 @@ from src.body import Body
 
 class Testing:
     def __init__(self):
-        self.results = {"knee_angle_l": [], "knee_angle_r": [], "hip_angle_l": [], "hip_angle_r": [], "bar_distance": []} # will convert to pandas df and get avg, sd, and store in csv
+        self.results = {"src": [], "knee_angle_l": [], "knee_angle_r": [], "hip_angle_l": [], "hip_angle_r": [], "bar_distance": []} # will convert to pandas df and get avg, sd, and store in csv
         self.body_est = Body('../model/body_pose_model.pth')
 
     def process_image(self, frame, is_bar = True, bar_distances=None, is_knee=False, is_hip=False, is_single=False):
@@ -23,14 +22,19 @@ class Testing:
         
         if len(candidate) > 0:
             coordinates = np.delete(candidate, (2, 3), 1)
+            print("Length of Coordinates: ", len(coordinates))
             if is_bar:
                 bar_distances.append(util.get_bar_distance(coordinates[4], coordinates[7]))
             if is_knee:
-                self.results["knee_angle_r"].append(util.get_angle(coordinates[11], coordinates[12], coordinates[13]))
-                self.results["knee_angle_l"].append(util.get_angle(coordinates[8], coordinates[9], coordinates[10]))
+                self.results["knee_angle_r"].append(util.get_angle(coordinates[13], coordinates[14], coordinates[15]))
+                self.results["knee_angle_l"].append(util.get_angle(coordinates[9], coordinates[10], coordinates[11]))
+                #print("Left knee angle: ", util.get_angle(coordinates[9], coordinates[10], coordinates[11]))
+                #print("Right knee angle: ", util.get_angle(coordinates[13], coordinates[14], coordinates[15]))
             elif is_hip:
-                self.results["hip_angle_l"].append(util.get_angle(coordinates[1], coordinates[8], coordinates[9]))
-                self.results["hip_angle_r"].append(util.get_angle(coordinates[1], coordinates[11], coordinates[12]))
+                self.results["hip_angle_l"].append(util.get_angle(coordinates[2], coordinates[9], coordinates[10]))
+                self.results["hip_angle_r"].append(util.get_angle(coordinates[2], coordinates[12], coordinates[13]))
+                print("Left hip angle: ", util.get_angle(coordinates[1], coordinates[8], coordinates[9]))
+                print("Right hip angle: ", util.get_angle(coordinates[1], coordinates[11], coordinates[12]))
 
         if not is_single:
             return marked_up
@@ -38,7 +42,7 @@ class Testing:
             plt.imshow(marked_up[:, :, [2, 1, 0]])
             plt.show()
     
-    def process_vid(self, video):
+    def process_vid(self, video, index):
         bar_distance = []
         cap = None
         try:
@@ -46,26 +50,32 @@ class Testing:
         except:
             sys.exit("Cannot open video file")
 
-        index = 0
-        while True:
-            ok, frame = cap.read()
-            
-            if not ok:
-                print('Cannot read video file')
-                break
-            
-            h, w, _ = frame.shape
-            fps = cap.get(cv.CAP_PROP_FPS)
-            fourcc = cv.VideoWriter_fourcc(*'mp4v')
-            video_out = cv.VideoWriter("res/{}-out.mp4".format(index), fourcc, fps, (w,h), isColor=True)
+        video_out = None
+        ok, frame = cap.read()
+        h, w, _ = frame.shape
+        fps = cap.get(cv.CAP_PROP_FPS)
+        fourcc = cv.VideoWriter_fourcc(*'mp4v')
+        video_out = cv.VideoWriter("res/{}-out.mp4".format(index), fourcc, fps, (w,h), isColor=True)
+        
+        if ok:
             canvas = self.process_image(frame, bar_distance)
-
             video_out.write(canvas)
-            index += 1
+            
+            while True:
+                ok, frame = cap.read()
+                
+                if not ok:
+                    print('Cannot read video file')
+                    break
+                
+                canvas = self.process_image(frame, bar_distance)
 
-        self.results["bar_distance"].append(np.mean(bar_distance))
+                video_out.write(canvas)
+
+        self.results["bar_distance"].append(np.std(bar_distance))
         cap.release()
-        video_out.release()
+        if video_out is not None:
+            video_out.release()
         cv.destroyAllWindows()
 
     def process_dir(self, path, is_knee=False, is_hip=False, img=False):
@@ -79,8 +89,13 @@ class Testing:
                     continue
                 self.process_image(frame, is_bar=False, is_knee=is_knee, is_hip=is_hip, is_single=True)
         else:
+            i = 0
             for file in files:
-                self.process_vid(file)
+                self.results["src"].append(file)
+                print("processing video {}".format(file))
+                file_path = os.path.join(path, file)
+                self.process_vid(file_path, i)
+                i+=1
 
     def get_results(self):
         # pad self.results with None if not enough data
@@ -93,17 +108,20 @@ class Testing:
                 self.results[key] += [None] * (max_data_len - len(self.results[key]))
 
         for key in self.results:
-            avg = np.mean([x for x in self.results[key] if x is not None])
-            sd = np.std([x for x in self.results[key] if x is not None])
-            self.results[key].append(avg)
-            self.results[key].append(sd)
+            if key != "src":
+                avg = np.mean([x for x in self.results[key] if x is not None])
+                sd = np.std([x for x in self.results[key] if x is not None])
+                self.results[key].append(avg)
+                self.results[key].append(sd)
+        self.results["src"].append("average")
+        self.results["src"].append("std_dev")
         
         df = pd.DataFrame(self.results)
         df.to_csv("res/results.csv")
 
 if __name__ == "__main__":
     test = Testing()
-    #test.process_dir('training/hip', is_hip=True, img=True)
-    test.process_dir('training/knee', is_knee=True, img=True)
+    test.process_dir('training/hip', is_hip=True, img=True)
+    #test.process_dir('training/knee', is_knee=True, img=True)
     #test.process_dir('training/video') # still need to test this
-    test.get_results()
+    #test.get_results()
