@@ -2,6 +2,7 @@ import cv2 as cv
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
+import os
 sys.path.append('/Users/miascarpati/Desktop/Northwestern/Junior/Q3/COMP_SCI_397_Sports/power-clean-form-coach/models/posedetection/pytorch-openpose')
 import src
 from src import util
@@ -19,9 +20,10 @@ HIP_SD = 8.5
 ## Error messages will be displayed based on the error margin (put in separate file probably can be .txt)
 
 class PoseDetector():
-    def __init__(self):
-        self.body_est = Body('../model/body_pose_model.pth')
+    def __init__(self, output_dir = "./", model_dir = "../model/body_pose_model.pth"):
+        self.body_est = Body(model_dir)
         self.video = None
+        self.output_dir = output_dir
 
         self.knee_angle_L = float('inf')
         self.knee_coord_L = None
@@ -160,7 +162,8 @@ class PoseDetector():
         if knee or hip or is_single:
             #plt.imshow(marked_up[:, :, [2, 1, 0]])
             #plt.show()
-            if is_single: cv.imwrite("res/out.png", marked_up)
+            output = self.output_dir + "out.png"
+            if is_single: cv.imwrite(output, marked_up)
 
         if not is_single:
             return marked_up
@@ -182,7 +185,8 @@ class PoseDetector():
         h, w, _ = frame.shape
         fps = cap.get(cv.CAP_PROP_FPS)
         fourcc = cv.VideoWriter_fourcc(*'mp4v')
-        video_out = cv.VideoWriter("res/{}-out.mp4".format(video), fourcc, fps, (w,h), isColor=True)
+        output = self.output_dir + os.path.basename(video).split(".")[0]  + '-out.mp4'
+        video_out = cv.VideoWriter(output, fourcc, fps, (w,h), isColor=True)
         
         if ok:
             canvas = self.process_image(frame)

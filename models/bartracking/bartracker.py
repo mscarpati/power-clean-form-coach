@@ -1,25 +1,28 @@
 import numpy as np
 import cv2 as cv
 import sys
+import os
 # import tensorflow as tf
 from collections import deque
 from imutils.video import FPS
 
 class BarTracker:
-    def __init__(self, filename):
+    def __init__(self, filename, output_dir = "output_vids/"):
+        self.filename = filename
         self.model = 'ssdlite_mobilenet_v2_coco/frozen_inference_graph.pb'
         self.tracker = cv.TrackerKCF_create() # switch type of tracker potentially?
         self.vid = None
         self.drawing = False
         self.ix, self.iy = -1, -1
         self.radius = 0
+        self.output_dir = output_dir
         
         # Fix file path to be absolute of whatever the user inputs
         file_path = '/Users/miascarpati/Desktop/Northwestern/Junior/Q3/COMP_SCI_397_Sports/power-clean-form-coach/models/bar-tracking/input_vids/' + filename
         try:
             self.vid = cv.VideoCapture(filename)
         except:
-            sys.exit('Cannot open video file. Please rerun program and make sure your video is an mp4 and is located in the input_vids directory.')
+            sys.exit('Cannot open video file. Please rerun program and make sure your video is an mp4 and is located in the correct directory.')
 
     def circle_to_bbox(self, center, radius):
         """
@@ -74,7 +77,8 @@ class BarTracker:
         h, w, _ = frame.shape
         fps = self.vid.get(cv.CAP_PROP_FPS)
         fourcc = cv.VideoWriter_fourcc(*'mp4v')
-        video_out = cv.VideoWriter("output_vids/out_2.mp4", fourcc, fps, (w,h), isColor=True)
+        output = self.output_dir + os.path.basename(self.filename).split(".")[0] + '-out.mp4'
+        video_out = cv.VideoWriter(output, fourcc, fps, (w,h), isColor=True)
 
         # Get bounding box for the first frame
         x_min, y_min, x_max, y_max = self.detect_circles(frame)
