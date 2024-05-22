@@ -28,7 +28,7 @@ export default function Home() {
     setLastScrollY(window.scrollY);
 
     
-    if (window.scrollY > 260) {
+    if (window.scrollY > 360) {
       setAtTop(true);
     } else {
       setAtTop(false);
@@ -63,15 +63,15 @@ export default function Home() {
       </div> */}
       <div className="relative z-10">
         <div className={`active ${show ? 'transition-all duration-500' : 'transition-all duration-500 opacity-0'}`}>
-        <h2 className='text-4xl font-bold'>
+        <h2 className='text-6xl font-bold typing-effect'>
           Welcome to Form Coach for Power Clean.
         </h2>
         <div className='mt-6'>
-        <p className='text-xl'>Scroll to learn more.</p>
+        <p className='text-3xl'>Scroll to learn more.</p>
         </div>
         
         <div className='animate-bounce hover:scale-110'>
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-10 h-10">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-20 h-20">
             <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
           </svg>
         </div>
@@ -82,7 +82,6 @@ export default function Home() {
         <div className='h-80'>
         <p></p>
         </div>
-
         <div className={`active ${!show ? 'transition-all duration-500' : 'transition-all duration-500 opacity-0'}`}>
         <div>
           <p className='text-lg mt-10 mb-6'>
@@ -102,6 +101,9 @@ export default function Home() {
         {/* example here before and after */}
         <div className='mt-10'>
         <UploadForm />
+        </div>
+        <div className='h-80'>
+        <p></p>
         </div>
       </div>
     </div>

@@ -86,9 +86,9 @@ class BarTracker:
         # Generate bounding box coords based on frontend call or not (frontend will pass circle coords directly)
         if frontendCall:
             scale_x = w/640
-            print("screenwidth vs width", sw, w)
             scale_y = h/580
-            print("screenheight vs height", sh, h)
+            print("cx, scale_x", cx, scale_x)
+            print("type of cx", type(cx))
             self.ix = cx * scale_x
             self.iy = cy * scale_y
             self.radius = radius

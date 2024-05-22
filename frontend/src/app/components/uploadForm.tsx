@@ -43,7 +43,7 @@ const UploadForm: React.FC = () => {
     try {
       const response = await axios.post(`${apiBaseUrl}/upload`, formData);
       alert('File uploaded successfully!');
-      setShowResultsButton(true);
+      if (barTracker == false) setShowResultsButton(true);
       setInputVideoUrl(`${apiBaseUrl}/inputs/${file?.name}`);
       console.log('Upload response:', response.data);
     } catch (error) {
@@ -59,7 +59,7 @@ const UploadForm: React.FC = () => {
       <form onSubmit={handleSubmit}>
         <VStack spacing={4} align="stretch">
           <Input type="file" accept="video/*" onChange={handleFileChange} padding={1} borderColor="gray.400" />
-          <p className='font-bold'>Select model(s):</p>
+          <p className='font-bold'>Select model:</p>
           <div className='pl-2'>
             <Stack direction='row' spacing={4}>
               <Input className='mt-1 hover:cursor-pointer' type='checkbox' onChange={(e) => setBarTracker(!barTracker)} />
@@ -80,7 +80,7 @@ const UploadForm: React.FC = () => {
         </div>
       }
       {inputVideoUrl && barTracker &&
-      <VideoCanvas videoUrl={inputVideoUrl} setLoading={setLoading} />}
+      <VideoCanvas videoUrl={inputVideoUrl} setLoading={setLoading} setShowResultsButton={setShowResultsButton}/>}
       {showResultsButton && <AnalyzedVideo filename={`${file?.name.split('.')[0]}-out.mp4`} />}
     </div>
   );

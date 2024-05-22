@@ -8,12 +8,13 @@ import LoadingCircle from "./loadingCircle";
 interface VideoCanvasProps {
     videoUrl: string;
     setLoading: (loading: boolean) => void;
+    setShowResultsButton: (show: boolean) => void;
 
 }
 
 // fix so it's the first frame
 
-const VideoCanvas: React.FC<VideoCanvasProps> = ({ videoUrl, setLoading }: VideoCanvasProps) => {
+const VideoCanvas: React.FC<VideoCanvasProps> = ({ videoUrl, setLoading, setShowResultsButton }: VideoCanvasProps) => {
     const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -130,6 +131,7 @@ const VideoCanvas: React.FC<VideoCanvasProps> = ({ videoUrl, setLoading }: Video
             try {
                 const response = await axios.post(`${apiBaseUrl}/bartracker`, formData);
                 alert('Data uploaded successfully!');
+                setShowResultsButton(true);
                 console.log('Upload response:', response.data);
             } catch (error) {
                 alert('Error uploading data');

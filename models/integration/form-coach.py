@@ -65,7 +65,7 @@ def upload_file():
     barTracker = request.form.get('barTracker')
     # print(barTracker)
     poseDetector = request.form.get('formAnalysis')
-    # print(poseDetector)
+    print(poseDetector)
     video_path = os.path.join('inputs', video.filename)
     video.save(video_path)
     form_coach = FormCoach(video_path)
@@ -89,7 +89,7 @@ def send_coords():
     sw = request.form.get('screenWidth')
     sh = request.form.get('screenHeight')
     if both:
-        form_coach.run_both(cx, cy, radius)
+        form_coach.run_both(cx=float(cx), cy=float(cy), radius=float(radius))
     else: form_coach.run_bar_tracker(video_path, frontendCall=True, cx=float(cx), cy=float(cy), radius=float(radius), sw=float(sw), sh=float(sh))
     return jsonify({'message': 'coordinates uploaded successfully!'})
 
