@@ -28,6 +28,7 @@ class BarTracker:
         """
         Converts circle coordinates to bounding box coordinates.
         """
+
         x_min = center[0] - radius
         y_min = center[1] - radius
         x_max = center[0] + radius
@@ -64,7 +65,7 @@ class BarTracker:
                 cv.destroyAllWindows()
                 sys.exit('User exited program.')
 
-    def track_bar(self):
+    def track_bar(self, frontendCall = False, cx=None, cy=None, radius=None, sw=None, sh=None):
         """
         Tracks the bar in the video by forming bounding box around plates.
         """
@@ -80,9 +81,24 @@ class BarTracker:
         output = self.output_dir + os.path.basename(self.filename).split(".")[0] + '-out.mp4'
         video_out = cv.VideoWriter(output, fourcc, fps, (w,h), isColor=True)
 
-        # Get bounding box for the first frame
-        x_min, y_min, x_max, y_max = self.detect_circles(frame)
-        bounding_box = (x_min, y_min, x_max-x_min, y_max-y_min)
+        x_min, y_min, x_max, y_max = 0, 0, 0, 0
+
+        # Generate bounding box coords based on frontend call or not (frontend will pass circle coords directly)
+        if frontendCall:
+            scale_x = w/640
+            print("screenwidth vs width", sw, w)
+            scale_y = h/580
+            print("screenheight vs height", sh, h)
+            self.ix = cx * scale_x
+            self.iy = cy * scale_y
+            self.radius = radius
+            x_min, y_min, x_max, y_max = self.circle_to_bbox((self.ix, self.iy), radius)
+        
+        else:
+            x_min, y_min, x_max, y_max = self.detect_circles(frame)
+            
+        bounding_box = (int(x_min), int(y_min), int(x_max-x_min), int(y_max-y_min))
+        print('bounding box:', bounding_box)
 
         self.tracker.init(frame, bounding_box)
         fps = FPS().start()
@@ -112,12 +128,13 @@ class BarTracker:
             
             # fps.update()
             # fps.stop()
-            cv.imshow('Tracking', frame)
+            if frontendCall == False: cv.imshow('Tracking', frame)
             
             video_out.write(frame)
 
         self.vid.release()
         cv.destroyAllWindows()
+        print("Bar tracking complete.")
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
